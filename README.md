@@ -96,10 +96,10 @@ ENTROPY Data Manager
             docker run -d --network dataignite -e mqbroker=rabbitmq_disage -e minio_host=minio:9000 -e redis_host=redis_disage --name randomforestregression randomforestregression						
 	
 ### Manual 
-<a href="https://root-oviraptor-453.notion.site/BOLTZMAN-bc707971d89f42e2aeccb31e1deadff0?pvs=4" target="_blank">BOLTZMAN Machine Learning web engine manual</a>
+<a href="https://dataignite.notion.site/BOLTZMAN-bc707971d89f42e2aeccb31e1deadff0?pvs=4" target="_blank">BOLTZMAN Machine Learning web engine manual</a>
 
 #### 
-<a href="https://root-oviraptor-453.notion.site/ENTROPY-8dac96c869db43fabf0eca97d685fcab?pvs=4" target="_blank">ENTROPY Data Engine web engine manual</a>
+<a href="https://dataignite.notion.site/ENTROPY-8dac96c869db43fabf0eca97d685fcab?pvs=4" target="_blank">ENTROPY Data Engine web engine manual</a>
 
 ### Communication
 <a href="https://github.com/dataignitelab/athemic/issues" target="_blank">GitHub Issues: mainly for bug reports, new feature requests, question asking, etc. </a>
