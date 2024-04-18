@@ -98,11 +98,11 @@ ENTROPY Data Manager
 ### Manual 
 <a href="https://dataignite.notion.site/BOLTZMAN-bc707971d89f42e2aeccb31e1deadff0?pvs=4" target="_blank">BOLTZMAN Machine Learning web engine manual</a>
 
-### Algorithm interface
-<a href="https://dataignite.notion.site/Algorithm-Interface-8674cb944a6d4464b57b0dc3afb1953b?pvs=4" target="_blank">BOLTZMAN and Machine Learning Servie Interface</a>
-
 #### 
 <a href="https://dataignite.notion.site/ENTROPY-8dac96c869db43fabf0eca97d685fcab?pvs=4" target="_blank">ENTROPY Data Engine web engine manual</a>
+
+### Algorithm interface
+<a href="https://dataignite.notion.site/Algorithm-Interface-8674cb944a6d4464b57b0dc3afb1953b?pvs=4" target="_blank">BOLTZMAN and Machine Learning Servie Interface</a>
 
 ### Communication
 <a href="https://github.com/dataignitelab/athemic/issues" target="_blank">GitHub Issues: mainly for bug reports, new feature requests, question asking, etc. </a>
