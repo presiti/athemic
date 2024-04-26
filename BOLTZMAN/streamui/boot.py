@@ -37,7 +37,7 @@ from post_process_algo.randomforest_classifier import do_rfc_report, get_rfc_mod
 from post_process_algo.statistics import do_statistics_report
 from StorageManage.minio import get_files_minio, load_dataset_minio, minio_client, DS_BUCKET_NAME, drop_dataset
 
-import logging
+# import logging
 
 basedir = os.path.dirname(os.path.abspath(__file__))
 os.chdir(basedir)
@@ -223,7 +223,7 @@ class WebMain():
         model_list = []
         model_id_list = []
         st.write("---")
-        st.write(f"모델 목록", unsafe_allow_html=True)
+        st.write(f"{item_caption['model_list'][session['LANG']]}", unsafe_allow_html=True)
         algo_type = session["DIS_SESSION"]['ACT_ALGORITHM']
         key_prefix = None
         if algo_type == 'Randomforest Classifier':
@@ -245,12 +245,12 @@ class WebMain():
         st.dataframe(model_history_df)
         st.write("---")
         # use custom dataset
-        custom_file = st.file_uploader(f"#### 모델 테스트 파일",
+        custom_file = st.file_uploader(f"#### {item_caption['modle_select'][session['LANG']]}",
                                      type=['xls', 'csv'],
                                      key='rfc_view_history')
         custom_df = self.get_file_df(custom_file)
         st.write("---")
-        model_ids = st.multiselect(f"모델 선택", model_id_list)
+        model_ids = st.multiselect(f"{item_caption['modle_select'][session['LANG']]}", model_id_list)
         for model_id in model_ids:
             if key_prefix == 'rfc':
                 do_rfc_report(dilogger, model_id, flexible=True, custom_df=custom_df)
@@ -262,7 +262,7 @@ class WebMain():
         if session.txtinput_filename == session.sel_object_ds:
             dilogger.debug({sys._getframe().f_code.co_name: f"DELETE {session.txtinput_filename}"})
             if drop_dataset(DS_BUCKET_NAME, session.sel_object_ds) == False:
-                st.error('파일 제거 오류 발생')
+                st.error(f"{item_caption['drop_ds_error'][session['LANG']]}")
 
     def get_file_df(self, custom_file):
         dilogger.debug({sys._getframe().f_code.co_name: ""})
@@ -280,14 +280,14 @@ class WebMain():
                 object_str = str(bytes_data, 'utf-8')
                 data = io.StringIO(object_str)
                 custom_df = pd.read_csv(data)
-                st.write(f"파일 미리보기")
+                st.write(f"{item_caption['data_preview_file'][session['LANG']]}")
                 st.dataframe(custom_df)
                 dilogger.debug({sys._getframe().f_code.co_name:f"{file_name} loaded"})
             # elif 'png' or 'jpg' in file_type:
             #     st.image(file_name, caption=f"{file_name}")
             #     dilogger.debug({sys._getframe().f_code.co_name:f"{file_name} loaded"})
             else:
-                st.error(f"처리 할 수 없는 데이터 입니다.")
+                st.error(f"{item_caption['data_unable_process'][session['LANG']]}")
                 st.stop()
         return custom_df
 
@@ -318,11 +318,11 @@ class WebMain():
         session["DIS_SESSION"] = upsert_session(session["DIS_SESSION"], "TRAIN_DS", session.TRAIN_DS)
 
         dilogger.debug({sys._getframe().f_code.co_name: f"{session['DIS_SESSION']['TRAIN_DS']} SELECTED"})
-        if st.button(label=f"{session["DIS_SESSION"]['TRAIN_DS']} 삭제"):
+        if st.button(label=item_caption['delete_ds_butoon'][session['LANG']].format(session['DIS_SESSION']['TRAIN_DS'])):
             session.drop_file_status = False
-            st.warning(f"""파일을 삭제하면 복구할 수 없습니다. 그래도 삭제하려면 파일명 {session['sel_train_ds']}을 기입하세요""")
-            st.text_input("파일명", on_change=self.get_file_name, key='txtinput_filename')
-            st.button(f"파일 삭제", on_click=self.on_click_drop_file)
+            st.warning(item_caption['delete_ds_request'][session['LANG']].format(session['DIS_SESSION']['TRAIN_DS']))
+            st.text_input(f"{item_caption['delete_ds_name'][session['LANG']]}", on_change=self.get_file_name, key='txtinput_filename')
+            st.button(f"{item_caption['delete_ds'][session['LANG']]}", on_click=self.on_click_drop_file)
         st.markdown("---")
         session['ml_run_mode'] = None
         if session["DIS_SESSION"]['TRAIN_DS'] is not None:
@@ -338,7 +338,7 @@ class WebMain():
             if session["DIS_SESSION"]['ALGORITHM_CATEGORY'] == 'Statistics':
                 opt_index = get_IndexofWidget(session["DIS_SESSION"], self.STATISTICS_OPTIONS,"ACT_ALGORITHM_STATISTICS")
                 st.selectbox(
-                    label=f"#### {'통계 옵션'}",
+                    label=f"#### {item_caption['statistics'][session['LANG']]}",
                     options=self.STATISTICS_OPTIONS,
                     index=opt_index, key='ACT_ALGORITHM_STATISTICS',
                     on_change=self.on_change_algorithm_statistics)
@@ -411,11 +411,11 @@ class WebMain():
                             sid, status, msg = self.get_report_enable()
                             if sid is None:
                                 if status == 'no service':
-                                    st.error('프로세스가 작동 중이 아닙니다.')
+                                    st.error(f"{item_caption['process_not_runnig'][session['LANG']]}")
                             elif status == 'finish':
-                                st.write(f"Session {sid}이 처리 완료 되었습니다.")
+                                st.write(item_caption['process_finish'][session['LANG']].format(sid))
                             elif status == 'error':
-                                st.error(f"Session {sid}의 처리 중 오류가 발생하였습니다.")
+                                st.error(item_caption['process_error'][session['LANG']].format(sid))
                                 st.error(f"{msg}")
                     with col_drop_report:
                         pass
@@ -461,11 +461,11 @@ class WebMain():
                     sid, status, msg = self.get_report_enable()
                     if sid is None:
                         if status == 'no service':
-                            st.error('프로세스가 작동 중이 아닙니다.')
+                            st.error(f"{item_caption['process_not_runnig'][session['LANG']]}")
                     elif status == 'success':
-                        st.write(f"Session {sid}이 처리 완료 되었습니다.")
+                        st.write(item_caption['process_finish'][session['LANG']].format(sid))
                     elif status == 'error':
-                        st.error(f"Session {sid}의 처리 중 오류가 발생하였습니다.")
+                        st.error(item_caption['process_error'][session['LANG']].format(sid))
                         st.error(f"{msg}")
 
             st.markdown("---")
@@ -479,7 +479,7 @@ class WebMain():
                 # Review
                 st.write(f"#### {item_caption['data_preview'][session['LANG']]}")
                 select_df = load_dataset_minio(DS_BUCKET_NAME, session["DIS_SESSION"]['TRAIN_DS'], limit_rows=500)
-                st.write("데이터 미리 보기에서는 데이터를 수정할 수 없습니다.")
+                st.write(f"{item_caption['data_preview_warrning'][session['LANG']]}")
                 st.write(session["DIS_SESSION"]['TRAIN_DS'])
                 st.dataframe(select_df)
 
@@ -494,16 +494,19 @@ class WebMain():
                 else:
                     input_dname = session["DIS_SESSION"]['TRAIN_DS']
                     input_ddesc = ''
-                st.write("데이터 이름")
+                st.write(item_caption['data_name'][session['LANG']])
                 st.code(input_dname, language="markdown")
-                st.write("데이터 설명")
+                st.write(f"{item_caption['data_description'][session['LANG']]}")
                 st.code(input_ddesc, language="markdown")
 
                 st.write('---')
                 st.write(f"#### {item_caption['data_preview_preprocess'][session['LANG']]}")
                 session['preprocess_df'] = select_df
-                st.write("전처리 데이터 미리 보기에서는 데이터를 셀에서도 수정할 수 있습니다.")
-                prep_opt = {'특성(필드)추출': 0, '데이터 타입 변경': 1, '값 변경': 2, '컬럼 헤더 추가': 3}
+                st.write(f"{item_caption['data_correction_preprocess'][session['LANG']]}")
+                prep_opt = {f"{item_caption['data_extract_attributes'][session['LANG']]}": 0,
+                            f"{item_caption['data_change_type'][session['LANG']]}": 1,
+                            f"{item_caption['data_change_value'][session['LANG']]}": 2,
+                            f"{item_caption['data_add_column_head'][session['LANG']]}": 3}
                 preprocess_opt = st.selectbox(label=f"{item_caption['convert_fun'][session['LANG']]}",
                                               options=prep_opt.keys(), index=0, key='sel_cvt_method')
                 menu_no = prep_opt[preprocess_opt]
@@ -526,9 +529,9 @@ class WebMain():
 
                 md_df = st.data_editor(df_sel_range)
                 self_df_dtype = pd.DataFrame(session['preprocess_df'].dtypes).transpose()
-                self_df_dtype.replace(['object'], '문자형', inplace=True)
-                self_df_dtype.replace(['int64'], '정수형', inplace=True)
-                self_df_dtype.replace(['float64'], '실수형', inplace=True)
+                self_df_dtype.replace(['object'], f"{item_caption['data_tpye_string'][session['LANG']]}", inplace=True)
+                self_df_dtype.replace(['int64'], f"{item_caption['data_tpye_int'][session['LANG']]}", inplace=True)
+                self_df_dtype.replace(['float64'], f"{item_caption['data_tpye_float'][session['LANG']]}", inplace=True)
                 st.dataframe(self_df_dtype)
                 st.dataframe(md_df.describe())
                 preprocess_ds_name = Path(session["DIS_SESSION"]['TRAIN_DS']).stem
@@ -563,13 +566,13 @@ class WebMain():
                                         pca_input_df = self.normalization(merged_select_df)
                                         self.show_pca(pca_input_df, self.class_field, nc=len(self.input_field))
                                 else:
-                                    st.error('주성분 분석 데이터에 클래스 컬럼이 누락되었습니다.')
-                                    st.write(f'전처리 대상 컬럼 {prep_col_list}')
-                                    st.write(f'클래스 컬럼 {self.class_field}')
+                                    st.error(f"{item_caption['pca_missing_col'][session['LANG']]}")
+                                    st.write(item_caption['pca_preprocess_target'][session['LANG']].format(prep_col_list))
+                                    st.write(item_caption['pca_class_col'][session['LANG']].format(self.class_field))
                             else:
-                                st.error('주성분 분석 데이터에 특성 컬럼이 누락되었습니다.')
-                                st.write(f'전처리 대상 컬럼 {prep_col_list}')
-                                st.write(f'특성 컬럼 {self.input_field}')
+                                st.error(f"{item_caption['pca_missing_col'][session['LANG']]}")
+                                st.write(item_caption['pca_preprocess_target'][session['LANG']].format(prep_col_list))
+                                st.write(item_caption[''][session['LANG']].format(self.input_field))
 
                 if session["DIS_SESSION"]['ACT_ALGORITHM'] is not None:
                     aa = session["DIS_SESSION"]['ACT_ALGORITHM']
@@ -596,7 +599,7 @@ class WebMain():
                                 session['BTN_RPT_DISABLE'] = True
                             if sid is not None:
                                 st.write(
-                                    f"### {session["DIS_SESSION"]['ACT_ALGORITHM']} {item_caption['test_predict'][session['LANG']]}")
+                                    f"### {session['DIS_SESSION']['ACT_ALGORITHM']} {item_caption['test_predict'][session['LANG']]}")
                                 st.write(f"{item_caption['session_id'][session['LANG']]}: {sid}")
                                 if st.button(f"{item_caption['test_model'][session['LANG']]}"):
                                     st.write(f"{item_caption['session_name'][session['LANG']]}",
@@ -613,7 +616,7 @@ class WebMain():
                                 session['BTN_RPT_DISABLE'] = True
                             if sid is not None:
                                 st.write(
-                                    f"### {session["DIS_SESSION"]['ACT_ALGORITHM']} {item_caption['test_predict'][session['LANG']]}")
+                                    f"### {session['DIS_SESSION']['ACT_ALGORITHM']} {item_caption['test_predict'][session['LANG']]}")
                                 st.write(f"{item_caption['session_id'][session['LANG']]}: {sid}")
                                 if st.button(f"{item_caption['test_model'][session['LANG']]}"):
                                     st.write(f"{item_caption['session_name'][session['LANG']]}",
@@ -884,12 +887,14 @@ class WebMain():
                        on_change=self.on_change_statistics_descriptive_input)
         sel_input = upsert_session(session['DIS_SESSION'], 'STATISTICS_DESC_INPUT', session.STATISTICS_DESC_INPUT)
         sel_input = sel_input['STATISTICS_DESC_INPUT']
-        filter = st.radio(f"{item_caption['sel_opt'][session['LANG']]}", ("선택 커럼 포함", "선택 컬럼 제거"),
+        filter = st.radio(f"{item_caption['sel_opt'][session['LANG']]}",
+                          (f"{item_caption['sel_opt_include'][session['LANG']]}",
+                           f"{item_caption['sel_opt_exclude'][session['LANG']]}"),
                           key='cvs_radio')
 
-        if filter == '선택 커럼 포함':
+        if filter == f"{item_caption['sel_opt_include'][session['LANG']]}":
             filter_in_columns = [col for col in column_list if col in sel_input]
-        elif filter == '선택 컬럼 제거':
+        elif filter == f"{item_caption['sel_opt_exclude'][session['LANG']]}":
             filter_in_columns = [col for col in column_list if col not in sel_input]
         if len(filter_in_columns) == 0:
             return None
@@ -902,14 +907,14 @@ class WebMain():
         isClassValid = True
         fit_parameter = self.get_rfc_fit_parameter(model_name)
         if self.class_field is None:
-            arg_status['class_status'] = {'error': f"클래스 필드를 선택하세요"}
+            arg_status['class_status'] = {'error': f"{item_caption['model_check_class_field'][session['LANG']]}"}
             isClassValid = False
         else:
             class_labels = train_df[self.class_field].unique()
             if len(class_labels) == 1:
                 if session['ACT_ALGORITHM'] == 'Randomforest Classifier':
                     arg_status['class_status'] = {
-                        'error': f"1 개의 클래스만 존재합니다. 다중 분류 알고리즘을 수행할 수 없습니다."}
+                        'error': f"{item_caption['rfc_check_class_one'][session['LANG']]}"}
 
         nominal_cols = []
         for col in self.input_field:
@@ -917,20 +922,20 @@ class WebMain():
                 nominal_cols.append(col)
         if len(nominal_cols) > 0:
             arg_status['feature_status'] = {
-                'error': f"{nominal_cols}에서 숫자가 아닌 값을 특성 값을 발견하였습니다."}
+                'error': item_caption['model_check_class_one'][session['LANG']].format(nominal_cols)}
         if isClassValid == True:
             if len(self.input_field) == 0:
                 arg_status['feature_status'] = {
-                    'error': f"특성 필드가 비어 있습니다."}
+                    'error': f"{item_caption['model_check_attribute_null'][session['LANG']]}"}
                 isClassValid = False
             if len(self.class_field) == 0:
                 arg_status['feature_status'] = {
-                    'error': f"클래스 필드가 비어 있습니다."}
+                    'error': f"{item_caption['model_check_class_null'][session['LANG']]}"}
                 isClassValid = False
 
             if fit_parameter['max_features'] > len(self.input_field):
                 arg_status['feature_status'] = {
-                    'error': f"트래의 최대 특성 개수는 입력 특성의 개수를 초과할 수 없습니다."}
+                    'error': f"{item_caption['model_check_max_features'][session['LANG']]}"}
                 isClassValid = False
             if isClassValid == True:
                 return fit_parameter, arg_status
@@ -945,14 +950,14 @@ class WebMain():
         isClassValid = True
         fit_parameter = self.get_rfr_fit_parameter(model_name)
         if self.class_field is None:
-            arg_status['class_status'] = {'error': f"클래스 필드를 선택하세요"}
+            arg_status['class_status'] = {'error': f"{item_caption['model_check_class_field'][session['LANG']]}"}
             isClassValid = False
         else:
             class_labels = train_df[self.class_field].unique()
             if len(class_labels) == 1:
                 if session['ACT_ALGORITHM'] == 'Randomforest Classifier':
                     arg_status['class_status'] = {
-                        'error': f"1 개의 클래스만 존재합니다. 다중 분류 알고리즘을 수행할 수 없습니다."}
+                        'error': f"{item_caption['model_check_class_one'][session['LANG']]}"}
 
         nominal_cols = []
         for col in self.input_field:
@@ -960,20 +965,20 @@ class WebMain():
                 nominal_cols.append(col)
         if len(nominal_cols) > 0:
             arg_status['feature_status'] = {
-                'error': f"{nominal_cols}에서 숫자가 아닌 값을 특성 값을 발견하였습니다."}
+                'error': item_caption['rfr_check_class_not_number'][session['LANG']].format(nominal_cols)}
         if isClassValid == True:
             if len(self.input_field) == 0:
                 arg_status['feature_status'] = {
-                    'error': f"특성 필드가 비어 있습니다."}
+                    'error': f"{item_caption['model_check_attribute_null'][session['LANG']]}"}
                 isClassValid = False
             if len(self.class_field) == 0:
                 arg_status['feature_status'] = {
-                    'error': f"클래스 필드가 비어 있습니다."}
+                    'error': f"{item_caption['model_check_class_null'][session['LANG']]}"}
                 isClassValid = False
 
             if fit_parameter['max_features'] > len(self.input_field):
                 arg_status['feature_status'] = {
-                    'error': f"트래의 최대 특성 개수는 입력 특성의 개수를 초과할 수 없습니다."}
+                    'error': f"{item_caption['model_check_max_features'][session['LANG']]}"}
                 isClassValid = False
             if isClassValid == True:
                 return fit_parameter, arg_status
@@ -1133,8 +1138,8 @@ class WebMain():
             cvt_df = train_df.copy(deep=True)
         else:
             cvt_df = session['preprocess_df']
-        st.text_input('기본 컬럼 이름', 'Col', key='ins_header_col')
-        if st.button('컬럼 이름 적용'):
+        st.text_input(f"{item_caption['insert_header_basic_name'][session['LANG']]}", 'Col', key='ins_header_col')
+        if st.button(f"{item_caption['insert_header_apply'][session['LANG']]}"):
             if session.ins_header_col is None: return
             if len(session.ins_header_col) == 0: return
             default_name = session.ins_header_col
