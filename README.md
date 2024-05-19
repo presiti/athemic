@@ -18,35 +18,41 @@ ENTROPY Data Manager
     This Project, each systems run on Docker
 
     1. Clone this repository
-    git clone https://github.com/dataignitelab/athemic
-    If you want to use sample data, you must clone this repository
+        git clone https://github.com/dataignitelab/athemic
+        If you want to use sample data, you must clone this repository
 
     2. Network
-    docker network create dataignite
+        docker network create dataignite
+    
+    3. Run Storage Container 
+            cd BOLTZMAN
+            docker-compose --file docker-compose-storage.yaml up -d
+	    	    
 	
-	3. Run from docker hub
-        cd BOLTZMAN
-		docker-compose --file docker-compose.yaml up -d
+    4. Run from docker hub
+            cd BOLTZMAN
+            docker-compose --file docker-compose.yaml up -d
         
-        open
-        http://localhost:8501/
+            Open
+            http://localhost:8501/
 
              
-	4. Run ML Container from docker hub
+     5. Run ML Container from docker hub
 		A. Statistics
             docker run -d --network dataignite -e mqbroker=rabbitmq_disage -e minio_host=minio:9000 -e redis_host=redis_disage --name statistic dataignitelab/statistic:0.0.1
 		
 		B Randomforest Classification
             docker run -d --network dataignite -e mqbroker=rabbitmq_disage -e minio_host=minio:9000 -e redis_host=redis_disage --name randomforestclassifier dataignitelab/randomforestclassifier:0.0.1
 
-        C Randomforest Regression
+		C Randomforest Regression
             docker run -d --network dataignite -e mqbroker=rabbitmq_disage -e minio_host=minio:9000 -e redis_host=redis_disage --name randomforestregression dataignitelab/randomforestregression:0.0.1
 	
-	5. Run ENTROPY DataEngine Container from docker hub
-        cd ENTROPY
-     	docker-compose --file docker-compose.yaml up -d
-        open
-        http://localhost:8502/
+     6. Run ENTROPY DataEngine Container from docker hub
+		cd ENTROPY
+	    
+		docker-compose --file docker-compose.yaml up -d
+		open
+		http://localhost:8502/
 
 	
 ### Run with build process
