@@ -24,20 +24,26 @@ def do_statistics_report(elk_logger, session_id, flexible=True):
                 report_pkg = model_desc['report']
 
                 for idx, report_item in enumerate(report_pkg):
-                    describe = report_item['describe']
+                    # describe = report_item['describe']
+                    describe = ""
                     feature = report_item['feature']
                     showtype = report_item['showtype'][0]
                     report_value = report_item['showtype'][1]
 
-                    if showtype == 'df':
-                        if feature == None: st.subheader(describe)
+                    if showtype == 'numeric_datadesc_df':
+                        if feature == None: st.subheader(f"{item_caption['numeric_statistic_desc'][session['LANG']]}")
                         st.dataframe(report_value)
-                    elif showtype == 'hist':
+
+                    elif showtype == 'norminal_datadesc_df':
+                        if feature == None: st.subheader(f"{item_caption['nominal_statistic_desc'][session['LANG']]}")
+                        st.dataframe(report_value)
+
+                    elif showtype == 'continuous_variables_hist':
                         if len(report_value):
                             if flexible == True:
-                                width = st.slider("Plot 너비", min_value=1.0, max_value=25.0, step=0.5, value=7.0,
+                                width = st.slider(f"Plot {item_caption['plt_width'][session['LANG']]}", min_value=1.0, max_value=25.0, step=0.5, value=7.0,
                                                   key=f'rpt__{idx}_{session_id}_sld_szw')
-                                height = st.slider("Plot 높이", min_value=1.0, max_value=25.0, step=0.5, value=4.0,
+                                height = st.slider(f"Plot {item_caption['plt_height'][session['LANG']]}", min_value=1.0, max_value=25.0, step=0.5, value=4.0,
                                                    key=f'rpt__{idx}_{session_id}_sld_szd')
                             else:
                                 width = 7.0
@@ -51,9 +57,9 @@ def do_statistics_report(elk_logger, session_id, flexible=True):
                     elif showtype == 'pie':
                         if len(report_value) > 0:
                             if flexible == True:
-                                width = st.slider("Plot 너비", min_value=1.0, max_value=25.0, step=0.5, value=7.0,
+                                width = st.slider(f"Plot {item_caption['plt_width'][session['LANG']]}", min_value=1.0, max_value=25.0, step=0.5, value=7.0,
                                                   key=f'rpt__{idx}_{session_id}_sld_szw')
-                                height = st.slider("Plot 높이", min_value=1.0, max_value=25.0, step=0.5, value=4.0,
+                                height = st.slider(f"Plot {item_caption['plt_height'][session['LANG']]}", min_value=1.0, max_value=25.0, step=0.5, value=4.0,
                                                    key=f'rpt__{idx}_{session_id}_sld_szd')
                             else:
                                 width = 7.0
@@ -69,9 +75,9 @@ def do_statistics_report(elk_logger, session_id, flexible=True):
                     elif showtype == 'bar':
                         if len(report_value) > 0:
                             if flexible == True:
-                                width = st.slider("Plot 너비", min_value=1.0, max_value=25.0, step=0.5, value=7.0,
+                                width = st.slider(f"Plot {item_caption['plt_width'][session['LANG']]}", min_value=1.0, max_value=25.0, step=0.5, value=7.0,
                                                   key=f'rpt__{idx}_{session_id}_sld_szw')
-                                height = st.slider("Plot 높이", min_value=1.0, max_value=25.0, step=0.5, value=4.0,
+                                height = st.slider(f"Plot {item_caption['plt_height'][session['LANG']]}", min_value=1.0, max_value=25.0, step=0.5, value=4.0,
                                                    key=f'rpt__{idx}_{session_id}_sld_szd')
                             else:
                                 width = 7.0

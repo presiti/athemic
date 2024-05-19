@@ -1,4 +1,5 @@
 item_caption={
+'multi_lang':{'kor':'한글','eng':'English'},
 'check_S3_region_empty':{'kor':'리전명 란이 비었습니다.','eng':'The Region name field is empty.'},
 'check_S3_region_format':{'kor':'리전명이 형식에 맞지 않습니다.','eng':'The region name is not formatted correctly.'},
 'check_S3_access':{'kor':'액세스 키 란이 비었습니다.','eng':'The Access key field is empty.'},
@@ -51,11 +52,7 @@ item_caption={
 # 'etl_inout_pw':{'kor':'','eng':'Password'},
 'etl_inout_type':{'kor':'Database 종류','eng':'Database Type'},
 
-'s3_region':{'kor':'리전','eng':'Region'},
-'etl_s3_bucket':{'kor':'버킷 이름','eng':'Bucket Name'},
-'object_name':{'kor':'객체 이름','eng':'Object Name'},
-# 'etl_s3_access':{'kor':'','eng':'access key'},
-# 'etl_s3_secret':{'kor':'','eng':'Secret Key'},
+
 
 'regist_inout_list':{'kor':'등록된 저장소 목록','eng':'List of registered storeages'},
 'regist_no_storage':{'kor':'등록된 저장소가 없습니다.','eng':'There are no storeages repositories.'},
@@ -78,11 +75,19 @@ item_caption={
 'op_regist_storage':{'kor':'데이터 저장소 타입','eng':'Data Storage Types'},
 'op_regist_engine':{'kor':'쿼리 엔진','eng':'Query Engine'},
 
+
 'trino_catalog':{'kor':'Trino 카탈로그','eng':'Trino Catalog'},
 'trino_duplicates':{'kor':'카탈로그 이름 {}이 존재합니다.','eng':'Catalog name {} exists.'},
 'trino_user_empty':{'kor':'사용자 이름이 비어 있습니다.','eng':'The username is empty.'},
 'trino_regist_del':{'kor':'등록/삭제','eng':'Register/Delete'},
+'trino_userid':{'kor':'Trino 사용자 ID(인증 없음)','eng':'Trino UserID(Anything)'},
 
+'s3_region':{'kor':'리전','eng':'Region'},
+'etl_s3_bucket':{'kor':'버킷 이름','eng':'Bucket Name'},
+'object_name':{'kor':'객체 이름','eng':'Object Name'},
+
+# 'etl_s3_access':{'kor':'','eng':'access key'},
+# 'etl_s3_secret':{'kor':'','eng':'Secret Key'},
 's3_bucket_name':{'kor':'버킷 이름','eng':'Bucket Name'},
 's3_file_name':{'kor':'파일 명','eng':'File name'},
 's3_regist_bucket':{'kor':'등록할 버켓 이름','eng':'Bucket name to register'},

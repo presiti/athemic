@@ -1,0 +1,7 @@
+# PyCharm
+.idea/
+*.pyc
+
+# data
+BOLTZMAN/storage/mongodb/mongodbdata/
+BOLTZMAN/minio/data/

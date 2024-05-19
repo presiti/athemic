@@ -1,4 +1,5 @@
 item_caption={
+'multi_lang':{'kor':'한글','eng':'English'},
 'model_list':{'kor':'모델 목록','eng':'Model List'},
 'modle_test_file':{'kor':'모델 테스트 파일','eng':'Model Test File'},
 'modle_select':{'kor':'모델 선택','eng':'Select Model'},
@@ -122,14 +123,32 @@ item_caption={
 'f_importance': {'kor':'특성값 중요도','eng':'Feature importances'},
 'mean_dec_imp': {'kor':'평균 불순도 감소','eng':'Mean decrease in impurity'},
 
-'histogram_chart': {'kor':'히스토그램','eng':'Histogram 차트'},
-'pie_chart': {'kor':'파이 차트','eng':'Pie 차트'},
-'bar_chart': {'kor':'바 차트','eng':'바 차트'},
+'histogram_chart': {'kor':'히스토그램','eng':'Histogram'},
+'pie_chart': {'kor':'파이 차트','eng':'Pie'},
+'bar_chart': {'kor':'바 차트','eng':'Bar'},
 
 'cols_type_conver': {'kor':'타입을 변경할 컬럼 선택','eng':'Select columns for type conversion'},
 'convert_fun': {'kor':'전처리 방법 선택','eng':'Select preprocessing method'},
 'origin_value': {'kor':'원본 값','eng':'Origin value'},
 'rep_value': {'kor':'교체할 값','eng':'Replace value'},
 'row_range': {'kor':'행 범위 선택','eng':'Select row range'},
-'upoload_preprocess_ds': {'kor':'전처리 데이터 업로드','eng':'Upload Preprocess Data'}
+'upoload_preprocess_ds': {'kor':'전처리 데이터 업로드','eng':'Upload Preprocess Data'},
+
+'numeric_statistic_desc': {'kor':'수치 데이터 통계 요약','eng':"Summary of numeric data"},
+'nominal_statistic_desc': {'kor':'범주 데이터 통계 요약','eng':"Summary of nominal data"},
+
+
+'rfc_resultof_applied_userdata_': {'kor':'사용자의 데이터를 분류한 결과','eng':"As a result of classifying the user's data"},
+'rfc_model_features': {'kor':'모델에 사용된 특성/독립변수','eng':"Features variables in Model"},
+'rfc_roc_warning': {'kor':'ROC 커브는 이진 분류에서 사용됩니다.','eng':"ROC curves are used in binary classification"},
+'rfc_numbersof_class': {'kor':'클래스의 갯수:','eng':"Numbers of classes:"},
+'rfc_featureimportance': {'kor':'특성값 중요도:','eng':"Feature Importance"},
+
+'rfr_resultof_applied_userdata_': {'kor':'사용자의 데이터를 분류한 결과','eng':"As a result of classifying the user's data"},
+'rfr_model_features': {'kor':'모델에 사용된 특성/독립변수','eng':"Features variables in Model"},
+'rfr_featureimportance': {'kor':'특성값 중요도:','eng':"Feature Importance"},
+'rfr_importance': {'kor':'중요도:','eng':"Importance"},
+
+'plt_width': {'kor':"너비",'eng':"Width"},
+'plt_height': {'kor':"높이",'eng':"Height"},
  }

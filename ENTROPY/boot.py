@@ -28,6 +28,7 @@ from dilogger import DIlogger
 from multilanguage.multi_lang import item_caption
 import sys
 import socket
+import sqlalchemy as sa
 
 elk_address = os.environ.get('elk_address')
 
@@ -220,6 +221,9 @@ def drop_doc_mongo(collection_name, drop_filter):
 def findsubsets(s, n):
     return list(itertools.combinations(s, n))
 
+def on_change_multilingual():
+    session["DIS_SESSION"] = upsert_sessiondb_redis(session["DPM_SESSION"], "WIDGET_MULTILANG", session.WIDGET_MULTILANG)
+
 def on_change_main_menu():
     session["DPM_SESSION"] = upsert_sessiondb_redis(session["DPM_SESSION"],"MAIN_MENU",session.MAIN_MENU)
 
@@ -407,9 +411,9 @@ def update_aws_s3_bucket_object_info(region, access_key, secret_key, bucket_name
             else:
                 input_dname = MIG_DATA_NAME
                 input_ddesc = f"{item_caption['ds_name'][session['LANG']]}"
-        object_name = st.text_input(label=f"{item_caption['ds_name'][session['LANG']]}", value=f"{MIG_DATA_NAME}.csv")
-        data_name = st.text_input(f"{item_caption['ds_data_name'][session['LANG']]}", value=input_dname)
-        data_describe = st.text_area(f"{item_caption['ds_data_info'][session['LANG']]}", value=input_ddesc)
+        object_name = st.text_input(label=f"{item_caption['storage_obj_name'][session['LANG']]}", value=f"{MIG_DATA_NAME}.csv")
+        data_name = st.text_input(f"{item_caption['storage_data_name'][session['LANG']]}", value=input_dname)
+        data_describe = st.text_area(f"{item_caption['storage_data_info'][session['LANG']]}", value=input_ddesc)
         if data_describe is not None:
             if len(data_describe) > 0:
                 ds_store_collec = mongo_db.get_collection(
@@ -439,7 +443,7 @@ def update_aws_s3_bucket_object_info(region, access_key, secret_key, bucket_name
         else:
             stored_default = target_columns
 
-        st.multiselect(f"{item_caption['s3_select_target'][session['LANG']]}",
+        st.multiselect(f"{item_caption['storage_select_target'][session['LANG']]}",
                        target_columns,
                        default=stored_default,
                        key="MIG_COLUMNS",
@@ -449,7 +453,7 @@ def update_aws_s3_bucket_object_info(region, access_key, secret_key, bucket_name
         sel_input = sel_input['MIG_COLUMNS']
         # object_name = st.text_input(label="객체 이름", value=f"{MIG_DATA_NAME}.csv")
 
-        st.write(f"######{item_caption['analytics_pre'][session['LANG']]}")
+        st.write(f"###### {item_caption['analytics_pre'][session['LANG']]}")
         if len(session["DPM_SESSION"]["MIG_COLUMNS"]) > 0:
             target_table = s3_object_df[sel_input]
 
@@ -463,11 +467,11 @@ def update_aws_s3_bucket_object_info(region, access_key, secret_key, bucket_name
             numeric_cols = target_table.select_dtypes([np.int64, np.float64]).columns
             integer_cols = list(target_table.select_dtypes([np.int64]).columns)
 
-            st.write(f"######{item_caption['analytics_corr_chart'][session['LANG']]}")
+            st.write(f"###### {item_caption['analytics_corr_chart'][session['LANG']]}")
             euclidean_corr_table = pd.DataFrame(target_table[numeric_cols].corr())
             st.dataframe(euclidean_corr_table, width=700)
 
-            st.write(f"######{item_caption['analytics_corr_heatmap'][session['LANG']]}")
+            st.write(f"###### {item_caption['analytics_corr_heatmap'][session['LANG']]}")
             fig, ax = plt.subplots(figsize=(12, 4))
             plt.title(f"Numeric column data correlation")
             sns.heatmap(euclidean_corr_table, ax=ax, annot=True, cmap='coolwarm', fmt=".2f")
@@ -932,9 +936,22 @@ def regist_inout_rdb():
         if session["DPM_SESSION"]["REGISTER_OPTION"] == f"{item_caption['register'][session['LANG']]}":
             host_address = st.text_input("Host Address", "")
             host_port = st.text_input("Host Port", "")
-            db_name = st.text_input(f"{item_caption['inout_db_name'][session['LANG']]}", "")
             username = st.text_input("User Name", "")
             password = st.text_input("Password", type="password")
+            sel_db_name = ''
+            if host_address != '' and host_port != '' and username != '' and password != '':
+                try:
+                    engine = sa.create_engine(f"mysql+pymysql://{username}:{quote_plus(password)}@{host_address}:{host_port}")
+                    insp = sa.inspect(engine)
+                    db_list = insp.get_schema_names()
+                    sel_db_name = st.selectbox(label = f"Databases in {host_address}",
+                                               options=db_list,
+                                               index=0)
+                except Exception as e:
+                    st.error('DB Schema load error')
+            db_name = st.text_input(f"{item_caption['inout_db_name'][session['LANG']]}", sel_db_name)
+
+
         elif session["DPM_SESSION"]["REGISTER_OPTION"] == f"{item_caption['modify'][session['LANG']]}":
             system_name = session["DPM_SESSION"]["EDIT_SYSTEM_NAME"]
             edit_db_name = session["DPM_SESSION"]["EDIT_DB_NAME"]
@@ -1040,8 +1057,47 @@ def main():
         elk_logger.debug({sys._getframe().f_code.co_name:f"DPM:None session"})
     st.title("Data Manager")
 
+
+
     with st.sidebar:
         st.markdown("### Machine Learning Data Manager")
+        if 'MULTI_LANG' not in session:
+            session['MULTI_LANG'] = ["kor", "eng"]
+        if 'LANG' not in session:
+            session['LANG'] = None
+
+        # col_multilang_icon, col_switch_lang = st.columns(2)
+        # with col_multilang_icon:
+        #     st.image("./icon/multilingual-48.png", width=24)
+        # with col_switch_lang:
+        #     opt_index = get_IndexofWidget(session["DPM_SESSION"], session['MULTI_LANG'], "WIDGET_MULTILANG")
+        #     st.selectbox(
+        #         # label=item_caption['multi_lang'][session['MULTI_LANG'][opt_index]],
+        #         label = 'Select your language',
+        #         options=session['MULTI_LANG'],
+        #         index=opt_index,
+        #         key="WIDGET_MULTILANG",
+        #         on_change=on_change_multilingual)
+        #     session['LANG'] = session.WIDGET_MULTILANG
+        #     session["DPM_SESSION"] = upsert_sessiondb_redis(session['DPM_SESSION'], "LANG", session.WIDGET_MULTILANG)
+        #st.markdown(f"### {item_caption['multi_lang'][session['LANG']]}")
+        opt_index = get_IndexofWidget(session["DPM_SESSION"], session['MULTI_LANG'], "WIDGET_MULTILANG")
+        if opt_index == 1:
+            cur_lang_msg = 'You are using english'
+        elif opt_index == 0:
+            cur_lang_msg = '한국어를 사용중입니다.'
+
+        st.selectbox(
+            label=cur_lang_msg,
+            options=session['MULTI_LANG'],
+            index=opt_index,
+            key="WIDGET_MULTILANG",
+            on_change=on_change_multilingual)
+        session['LANG'] = session.WIDGET_MULTILANG
+        session["DPM_SESSION"] = upsert_sessiondb_redis(session['DPM_SESSION'], "LANG", session.WIDGET_MULTILANG)
+
+
+
         option_main_nume_list =[f"{item_caption['main_op_regist'][session['LANG']]}",f"{item_caption['main_op_link'][session['LANG']]}"]
         opt_index = get_IndexofWidget(session["DPM_SESSION"], option_main_nume_list, "MAIN_MENU")
         st.selectbox(label=f"{item_caption['main_data_storage'][session['LANG']]}",
@@ -1116,7 +1172,7 @@ def main():
                 st.info(f"{item_caption['regist_no_storage'][session['LANG']]}")
             trino_ip = st.text_input("Host IP", "")
             trino_port = st.text_input("Host Port", "")
-            trino_user = st.text_input("사용자 ID", "")
+            trino_user = st.text_input(f"{item_caption['trino_userid'][session['LANG']]}", "")
             if len(trino_ip) > 0 and len(trino_port) > 0 and len(trino_user) > 0:
                 t_conn = trino_conn(host=trino_ip,port=trino_port,  user=trino_user )
                 cur = t_conn.cursor()
@@ -1221,7 +1277,9 @@ def main():
                         for bucket_name in bucket_list:
                             object_list = get_aws_s3_object_list(access_key, secret_key, aws_region, bucket_name)
                             for file_name in object_list:
-                                bucket_infos.append({item_caption[''][session['LANG']].format(): aws_region, f"{item_caption['s3_bucket_name'][session['LANG']]}": bucket_name, f"{item_caption['s3_file_name'][session['LANG']]}": file_name})
+                                bucket_infos.append({item_caption['s3_region'][session['LANG']]: aws_region,
+                                                     f"{item_caption['s3_bucket_name'][session['LANG']]}": bucket_name,
+                                                     f"{item_caption['s3_file_name'][session['LANG']]}": file_name})
                         df = pd.DataFrame(bucket_infos)
                         st.dataframe(df)
 
@@ -1293,7 +1351,7 @@ def main():
     elif session["DPM_SESSION"]["MAIN_MENU"] == f"{item_caption['main_op_link'][session['LANG']]}":
         option_main_nume_list = [f"{item_caption['op_link_in'][session['LANG']]}", f"{item_caption['op_link_out'][session['LANG']]}", f"{item_caption['op_link_aws'][session['LANG']]}", "BigDataEngine"]
         opt_index = get_IndexofWidget(session["DPM_SESSION"], option_main_nume_list, "MIGRATION_CHANNEL")
-        st.selectbox(label="연계 채널 선택",
+        st.selectbox(label=f"{item_caption['op_link_sel_channel'][session['LANG']]}",
                       options=option_main_nume_list,
                       index=opt_index,
                       key="MIGRATION_CHANNEL",

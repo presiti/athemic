@@ -24,23 +24,27 @@ def get_files_minio(BUCKET_NAME):
 @st.cache_data
 def load_dataset_minio(BUCKET_NAME, data_name, limit_rows=None):
     object_contents = minio_client.get_object(BUCKET_NAME, data_name)
-    object_data = object_contents.data
-    _, file_type = os.path.splitext(data_name)
-    if 'xls' in file_type:
-        dataset_df = pd.read_excel(object_data)
-    elif 'csv' or 'csv' in file_type:
-        object_str = str(object_data, 'utf-8')
-        data = StringIO(object_str)
-        if limit_rows != None:
-            dataset_df = pd.read_csv(data, nrows=limit_rows)
+    try:
+        object_data = object_contents.data
+        _, file_type = os.path.splitext(data_name)
+        if 'xls' in file_type:
+            dataset_df = pd.read_excel(object_data)
+        elif 'csv' or 'csv' in file_type:
+            object_str = str(object_data, 'utf-8')
+            data = StringIO(object_str)
+            if limit_rows != None:
+                dataset_df = pd.read_csv(data, nrows=limit_rows)
+            else:
+                dataset_df = pd.read_csv(data)
+        elif 'png' or 'jpg' in file_type:
+            st.image(data_name, caption=f"{data_name}")
         else:
-            dataset_df = pd.read_csv(data)
-    elif 'png' or 'jpg' in file_type:
-        st.image(data_name, caption=f"{data_name}")
-    else:
-        st.error(f"처리 할 수 없는 데이터 입니다.")
-        st.stop()
-    return dataset_df
+            st.error(f"처리 할 수 없는 데이터 입니다.")
+            st.stop()
+        return dataset_df
+    except Exception as e:
+        st.error('Object read Error')
+        return None
 
 def drop_dataset(BUCKET_NAME, file_name):
     minio_client.remove_object(BUCKET_NAME, file_name)

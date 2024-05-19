@@ -102,6 +102,9 @@ class WebMain():
     def on_change_train_ds(self):
         session["DIS_SESSION"] = upsert_session(session["DIS_SESSION"], "TRAIN_DS", session.TRAIN_DS)
 
+    def on_change_multilingual(self):
+        session["DIS_SESSION"] = upsert_session(session["DIS_SESSION"], "WIDGET_MULTILANG", session.WIDGET_MULTILANG)
+
     def on_change_algo_category(self):
         session["DIS_SESSION"] = upsert_session(session["DIS_SESSION"], "ALGORITHM_CATEGORY", session.ALGORITHM_CATEGORY)
 
@@ -185,7 +188,11 @@ class WebMain():
 
     def init_session(self):
         dilogger.debug({sys._getframe().f_code.co_name: ""})
-        session['LANG'] = 'kor'
+        if 'MULTI_LANG' not in session:
+            session['MULTI_LANG'] = ["kor", "eng"]
+        if 'LANG' not in session:
+            session['LANG'] = None #"kor"
+
         if 'ALGO_CATEGORY' not in session: session['ALGO_CATEGORY'] = None
         if 'ACT_ALGORITHM' not in session: session['ACT_ALGORITHM'] = None
         if 'BTN_RPT_DISABLE' not in session: session['BTN_RPT_DISABLE'] = True
@@ -217,6 +224,7 @@ class WebMain():
         if 'list_tables' not in session: session['list_tables'] = None
         if 'sel_train_ds' not in session: session['sel_train_ds'] = None
 
+
     def view_history(self):
         dilogger.debug({sys._getframe().f_code.co_name: ""})
         model_keys = redis_mgr.keys()
@@ -232,6 +240,7 @@ class WebMain():
             key_prefix = 'rfr'
         elif algo_type == 'Statistics':
             key_prefix = 'statistics'
+
 
         for model_key in model_keys:
             if key_prefix in str(model_key):
@@ -276,7 +285,7 @@ class WebMain():
                 st.dataframe(custom_df)
                 dilogger.debug({sys._getframe().f_code.co_name:f"{file_name} loaded"})
 
-            elif 'csv'  in file_type:
+            elif 'csv' in file_type:
                 object_str = str(bytes_data, 'utf-8')
                 data = io.StringIO(object_str)
                 custom_df = pd.read_csv(data)
@@ -294,7 +303,48 @@ class WebMain():
     def configure_menu(self):
         dilogger.debug({sys._getframe().f_code.co_name: ""})
         st.markdown("---")
-        st.markdown(f"### {item_caption['data_manage'][session['LANG']]}")
+        st.markdown("""
+                    <style>
+                        div[data-testid="column"] {
+                            width: fit-content !important;
+                            flex: unset;
+                        }
+                        div[data-testid="column"] * {
+                            width: fit-content !important;
+                        }
+                    </style>
+                    """, unsafe_allow_html=True)
+
+        # col_multilang_icon, col_switch_lang = st.columns(2)
+        # with col_multilang_icon:
+        #     st.image("./icon/multilingual-48.png", width=24)
+        # with col_switch_lang:
+        #     opt_index = get_IndexofWidget(session["DIS_SESSION"], session['MULTI_LANG'], "WIDGET_MULTILANG")
+        #     st.selectbox(
+        #         label=item_caption['multi_lang'][session['MULTI_LANG'][opt_index]],
+        #         options=session['MULTI_LANG'],
+        #         index=opt_index,
+        #         key="WIDGET_MULTILANG",
+        #         on_change=self.on_change_multilingual)
+        #     session['LANG'] = session.WIDGET_MULTILANG
+        #     session["DIS_SESSION"] = upsert_session(session['DIS_SESSION'], "LANG", session.WIDGET_MULTILANG)
+        # st.markdown(f"### {item_caption['data_manage'][session['LANG']]}")
+
+        opt_index = get_IndexofWidget(session["DIS_SESSION"], session['MULTI_LANG'], "WIDGET_MULTILANG")
+        if opt_index == 1:
+            cur_lang_msg = 'You are using english'
+        elif opt_index == 0:
+            cur_lang_msg ='한국어를 사용중입니다.'
+
+        st.selectbox(
+            label=cur_lang_msg,
+            options=session['MULTI_LANG'],
+            index=opt_index,
+            key="WIDGET_MULTILANG",
+            on_change=self.on_change_multilingual)
+        session['LANG'] = session.WIDGET_MULTILANG
+        session["DIS_SESSION"] = upsert_session(session['DIS_SESSION'], "LANG", session.WIDGET_MULTILANG)
+
         self.uploaded_file = st.file_uploader(f"#### {item_caption['file_upload'][session['LANG']]}",
                                               type=['xls', 'csv'])
         if self.uploaded_file is not None:
@@ -920,6 +970,7 @@ class WebMain():
         for col in self.input_field:
             if str(train_df[col].dtypes) == 'object':
                 nominal_cols.append(col)
+
         if len(nominal_cols) > 0:
             arg_status['feature_status'] = {
                 'error': item_caption['model_check_class_one'][session['LANG']].format(nominal_cols)}

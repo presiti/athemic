@@ -105,29 +105,32 @@ class Statistic():
 
         self.report.clear()
 
-    def put_report_msg(self, rpt_describe, rpt_type, rpt_feature, rpt_data):
-        if rpt_type == 'df':
+    def put_report_msg(self, rpt_type, rpt_feature, rpt_data):
+        if rpt_type == 'numeric_datadesc_df':
             r_data_json = rpt_data.to_json(index=True, force_ascii=False)
             r_data_json = json.loads(r_data_json)
-            self.report.append({'describe':rpt_describe,
-                                'showtype':('df',r_data_json),
+            self.report.append({'showtype':('numeric_datadesc_df',r_data_json),
                                 'feature':None})
-        elif rpt_type == 'hist':
+
+        elif rpt_type == 'norminal_datadesc_df':
+            r_data_json = rpt_data.to_json(index=True, force_ascii=False)
+            r_data_json = json.loads(r_data_json)
+            self.report.append({'showtype': ('norminal_datadesc_df', r_data_json),
+                                'feature': None})
+
+        elif rpt_type == 'continuous_variables_hist':
             r_data_json = rpt_data.to_json(index=True)
-            self.report.append({'describe':rpt_describe,
-                                'showtype':('hist',r_data_json),
+            self.report.append({'showtype':('continuous_variables_hist',r_data_json),
                                 'feature':rpt_feature})
         elif rpt_type == 'pie':
             r_data_json = rpt_data.to_json(index=True)
             r_data_json = json.loads(r_data_json)
-            self.report.append({'describe':rpt_describe,
-                                'showtype':('pie',r_data_json),
+            self.report.append({'showtype':('pie',r_data_json),
                                 'feature':rpt_feature})
         elif rpt_type == 'bar':
             r_data_json = rpt_data.to_json(index=True)
             r_data_json = json.loads(r_data_json)
-            self.report.append({'describe':rpt_describe,
-                                'showtype':('bar',r_data_json),
+            self.report.append({'showtype':('bar',r_data_json),
                                 'feature':rpt_feature})
 
     def fit(self, **kargs):
@@ -259,24 +262,24 @@ class Statistic():
         if len(numeric_list) > 0:
             for x_name in numeric_list:
                 tbl.append(allval[x_name])
-            self.put_report_msg(rpt_describe='수치 데이터 통계', rpt_type='df', rpt_feature=None, rpt_data=pd.DataFrame(tbl))
-            dilogger.debug({"status": "ok", sys._getframe().f_code.co_name: "수치 데이터 통계 완료"})
+            self.put_report_msg(rpt_type='numeric_datadesc_df', rpt_feature=None, rpt_data=pd.DataFrame(tbl)) #수치 데이터 통계
+            dilogger.debug({"status": "ok", sys._getframe().f_code.co_name: "finish numeric data statistics process"})
 
         if len(numeric_list) > 0:
             for x_name in numeric_list:
-                self.put_report_msg(rpt_describe='연속 변수 히스토그램',rpt_type='hist',rpt_feature=x_name,  rpt_data=input_df[x_name])
-            dilogger.debug({"status": "ok", sys._getframe().f_code.co_name: "연속 변수 히스토그램 완료"})
+                self.put_report_msg(rpt_type='continuous_variables_hist',rpt_feature=x_name,  rpt_data=input_df[x_name]) #연속 변수 히스토그램
+            dilogger.debug({"status": "ok", sys._getframe().f_code.co_name: "finish histogram of continuous data"})
 
         if len(x_norm_list) > 0:
-            self.put_report_msg(rpt_describe='문자형 데이터 통계',rpt_type='df', rpt_feature=None, rpt_data=input_df[x_norm_list].describe())
-            dilogger.debug({"status": "ok", sys._getframe().f_code.co_name: "문자형 데이터 통계 완료"})
+            self.put_report_msg(rpt_type='norminal_datadesc_df', rpt_feature=None, rpt_data=input_df[x_norm_list].describe()) #문자형 데이터 통계
+            dilogger.debug({"status": "ok", sys._getframe().f_code.co_name: "finish norminal data statistics process"})
             for norm_col in x_norm_list:
                 pie_df = input_df[norm_col].head(10).value_counts()
-                self.put_report_msg(rpt_describe='파이 차트(문자형 데이터)-Top 10', rpt_type='pie',rpt_feature=norm_col,rpt_data=pie_df)
+                self.put_report_msg(rpt_type='pie',rpt_feature=norm_col,rpt_data=pie_df) #파이 차트(문자형 데이터)-Top 10
 
             for norm_col in x_norm_list:
                 bar_df = input_df[norm_col].head(10).value_counts()
-                self.put_report_msg(rpt_describe='바 차트(문자형 데이터)-Top 10', rpt_type='bar',rpt_feature=norm_col,rpt_data=bar_df)
+                self.put_report_msg(rpt_type='bar',rpt_feature=norm_col,rpt_data=bar_df) #바 차트(문자형 데이터)-Top 10
 
         msg_json = {'status': 'finish',
                     'session_id': str(session_id),

@@ -48,8 +48,8 @@ def do_rfr_report(elk_logger, session_id, flexible=True, custom_df=None):
                 y_pred = model_desc['y_pred']
 
                 if custom_df is not None:
-                    st.write('사용자 데이터 분류 결과')
-                    st.info(f"모델에 사용된 특성/독립변수")
+                    st.write(f"{item_caption['rfr_resultof_applied_userdata_'][session['LANG']]}")
+                    st.info(f"{item_caption['rfr_model_features'][session['LANG']]}")
                     st.info(features)
                     custom_xt = custom_df[features]
                     custome_predict_np = model_obj.predict(custom_xt)
@@ -60,13 +60,13 @@ def do_rfr_report(elk_logger, session_id, flexible=True, custom_df=None):
                 st.write("R²: ", valid_r_square)
                 st.write("RMSE: ", valid_rmse)
 
-                st.subheader("특성값 중요도")
+                st.subheader(f"{item_caption['rfr_featureimportance'][session['LANG']]}")
                 rfr_importances = model_obj.feature_importances_
 
                 std = np.std([tree.feature_importances_ for tree in model_obj.estimators_], axis=0)
                 forest_importances = pd.Series(rfr_importances, index=features)
                 forest_importances_df = forest_importances.to_frame()
-                forest_importances_df.columns = ["중요도"]
+                forest_importances_df.columns = [f"{item_caption['rfr_importance'][session['LANG']]}"]
                 st.dataframe(forest_importances_df)
 
                 fig, ax = plt.subplots(figsize=(7, 4))

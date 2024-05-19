@@ -47,8 +47,9 @@ def do_rfc_report(elk_logger, session_id, flexible=True, custom_df=None):
                 class_lbl = model_desc['class_lbl']
                 model_obj = model_desc['model']
                 if custom_df is not None:
-                    st.write('사용자 데이터 분류 결과')
-                    st.info(f"모델에 사용된 특성/독립변수")
+                    st.write(f"{item_caption['rfc_resultof_applied_userdata_'][session['LANG']]}")
+                    st.info(f"{item_caption['rfc_model_features'][session['LANG']]}")
+
                     st.info(features)
                     custom_xt = custom_df[features]
                     custome_predict_np = model_obj.predict(custom_xt)
@@ -70,7 +71,8 @@ def do_rfc_report(elk_logger, session_id, flexible=True, custom_df=None):
 
                 st.subheader("Receiver Operating Characteristic (ROC) Curve")
                 if len(class_lbl) > 2:
-                    st.info(f"클래스가 {len(class_lbl)}개 입니다. ROC 커브는 이진 분류에서 사용됩니다.")
+                    st.info(f"{item_caption['rfc_numbersof_class'][session['LANG']]}")
+                    st.info(f"{item_caption['rfc_roc_warning'][session['LANG']]}")
                 else:
                     fig, ax = plt.subplots(figsize=(width, height))
                     fprs, tprs, th = roc_curve(yt, yp)
@@ -88,14 +90,15 @@ def do_rfc_report(elk_logger, session_id, flexible=True, custom_df=None):
                                                 class_names=class_lbl)
                 st.pyplot(fig)
 
-                st.subheader("특성값 중요도")
+                st.subheader(f"{item_caption['rfc_featureimportance'][session['LANG']]}")
                 rfc_importances = model_obj.feature_importances_
 
                 std = np.std([tree.feature_importances_ for tree in model_obj.estimators_], axis=0)
                 forest_importances = pd.Series(rfc_importances, index=features)
                 st.dataframe(forest_importances)
 
-                x_angle = st.slider(f"{item_caption['angle_label'][session['LANG']]}", min_value=0.0, max_value=90.0, step=0.5, value=90.0,
+                x_angle = st.slider(f"{item_caption['angle_label'][session['LANG']]}",
+                                    min_value=0.0, max_value=90.0, step=0.5, value=90.0,
                                     key=f'rpt_rfc_{session_id}_x_angle')
                 fig, ax = plt.subplots(figsize=(width, height))
                 forest_importances.plot.bar(yerr=std, ax=ax)

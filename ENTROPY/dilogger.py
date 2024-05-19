@@ -6,7 +6,7 @@ class DIlogger:
 
     def __init__(self, address_list, index, level):
         logPath = './'
-        filename = 'statistics'
+        filename = 'entropy'
         if address_list is not None:
             self.es = Elasticsearch(address_list)
         else:
